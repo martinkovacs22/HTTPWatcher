@@ -1,10 +1,17 @@
 import subprocess
 import re
+import sys
 from scapy.all import *
 from PortClass import Port
 
+sys.path.append('dataController')  # Ellenőrizd, hogy ez a helyes útvonal
+from dataController.JsonLogger import JsonLogger
 class PortManager:
     def __init__(self):
+
+
+        # Példányosítsuk a JsonLogger-t a megfelelő elérési úttal
+        self.json_logger = JsonLogger()
         # Futtatja a netstat parancsot és meghívja a findstr LISTENING szűrőt
         output = subprocess.check_output("netstat -an | findstr LISTENING", shell=True)
 
@@ -29,25 +36,21 @@ class PortManager:
                 if packet.haslayer(Raw):
                     load = packet[Raw].load.decode('utf-8', errors='ignore')
                     if 'HTTP' in load:
-                        print("HTTP Data Detected:")
-                        print("Source IP:", packet[IP].src)
-                        print("Destination IP:", packet[IP].dst)
-                        print("Source Port:", tcp_layer.sport)
-                        print("Destination Port:", tcp_layer.dport)
-                        print("HTTP Data:")
-                        print(load)
-                        print("-" * 50)
 
-                        # Split the HTTP data to separate headers and body
+
                         headers, body = self.split_headers_body(load)
-                        if headers:
-                            print("HTTP Headers:")
-                            print(headers)
-                        if body:
-                            print("HTTP Body:")
-                            print(body)
-                        print("=" * 50)
 
+                        # Create a dictionary to store the HTTP data
+                        http_entry = {
+                            "source_ip": packet[IP].src,
+                            "destination_ip": packet[IP].dst,
+                            "source_port": tcp_layer.sport,
+                            "destination_port": tcp_layer.dport,
+                            "headers": headers,
+                            "body": body
+                        }
+                        # Log the HTTP entry using JsonLogger
+                        self.json_logger.log_http_data(http_entry)
     def split_headers_body(self, http_data):
         # HTTP adat szétválasztása fejlécekre és törzsre
         parts = http_data.split("\r\n\r\n", 1)
