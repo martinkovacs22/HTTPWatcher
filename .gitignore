@@ -2,3 +2,9 @@
 /HttpWatcher/build/
 /HttpWatcher/dist/
 /HttpWatcher/HttpWatcher/target/
+/HttpWatcher/HttpWatching/target/
+/HttpWatcher/mavenproject1/target/
+/HttpWatcher/NetworkCard/target/
+/HttpWatcher/NetworkTest/nbproject/private/
+/HttpWatcher/NetworkTest/build/
+/HttpWatcher/NetworkTest/dist/
